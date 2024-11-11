@@ -1,23 +1,22 @@
-def decode_message( s: str, p: str) -> bool:
-
-# write your code here
-        m, n = len(pattern), len(message)
-        dp = [[False] * (n + 1) for _ in range(m + 1)]
-        dp[0][0] = True
-        
-        for i in range(1, m + 1):
-            if pattern[i - 1] == '*':
-                dp[i][0] = dp[i - 1][0]
-            else:
-                break
-        
-        for i in range(1, m + 1):
-            for j in range(1, n + 1):
-                if pattern[i - 1] == message[j - 1] or pattern[i - 1] == '?':
-                    dp[i][j] = dp[i - 1][j - 1]
-                elif pattern[i - 1] == '*':
-                    dp[i][j] = dp[i - 1][j] or dp[i][j - 1]
-        
-        return dp[m][n]
-  
-        # return False
+def decode_message(s: str, p: str) -> bool:
+    memo = {}
+    def dfs(s_index, p_index):
+        if (s_index, p_index) in memo:
+            return memo[(s_index, p_index)]
+        if s_index == len(s) and p_index == len(p):
+            return True
+        if p_index == len(p):
+            return False
+        if s_index == len(s):
+            while p_index < len(p) and p[p_index] == '*':
+                p_index += 1
+            return p_index == len(p)
+        if p[p_index] == s[s_index] or p[p_index] == '?':
+            result = dfs(s_index + 1, p_index + 1)      
+        elif p[p_index] == '*':
+            result = dfs(s_index, p_index + 1) or dfs(s_index + 1, p_index)
+        else:
+            result = False
+        memo[(s_index, p_index)] = result
+        return result
+    return dfs(0, 0)
